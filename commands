@@ -7,8 +7,8 @@ if [[ -n $DOKKU_API_VERSION ]]; then
 fi
 source "$PLUGIN_BASE_PATH/common/functions"
 
-is_webhook() {
-  echo "$1" | grep -E '^http[s]?://'
+is_an_app() {
+  verify_app_name "$1"
 }
 
 get_slack_root() {
@@ -21,38 +21,31 @@ get_slack_root() {
   fi
 }
 
-get_webhook() {
-  if [[ -n $1 && -n $2 ]]; then
-    echo "$2"
-  else
-    echo "$1"
-  fi
-}
 
 case "$1" in
   redeploy:set)
     SLACK_ROOT=$(get_slack_root "$2")
-    WEBHOOK=$(get_webhook "$2" "$3")
-    [[ -z $WEBHOOK ]] && echo "Please specify at least a webhook URL" && exit 1
-    [[ -z $(is_webhook "$WEBHOOK") ]] && echo "Webhook has to be an URL" && exit 1
-    echo "$WEBHOOK" > "$SLACK_ROOT/SLACK_URL"
+    APP_REDEPLOY="$3"
+    [[ -z $APP_REDEPLOY ]] && echo "Please specify an <app> to redeploy" && exit 1
+    [[ -z $(is_an_app "$APP_REDEPLOY") ]] && echo "<app_redeploy> has to be a valid APP" && exit 1
+    echo "$APP_REDEPLOY" > "$SLACK_ROOT/REDEPLOY"
     ;;
 
   redeploy:clear)
     SLACK_ROOT=$(get_slack_root "$2")
-    rm "$SLACK_ROOT/SLACK_URL"
+    rm "$SLACK_ROOT/REDEPLOY"
     ;;
 
   redeploy:get)
     SLACK_ROOT=$(get_slack_root "$2")
-    cat "$SLACK_ROOT/SLACK_URL"
+    cat "$SLACK_ROOT/REDEPLOY"
     ;;
 
   help)
     HELP=$(cat<<EOF
-    redeploy:set [app] <webhook_url>, Set Slack WebHook URL
-    redeploy:clear [app], Clears Slack WebHook URL
-    redeploy:get [app], Display Slack WebHook URL
+    redeploy:set [app] <app_redeploy>, Set <app_redeploy> when [app] deploys
+    redeploy:clear [app], Clears redeploy for [app]
+    redeploy:get [app], Display redeploy
 EOF
 )
     if [[ -n $DOKKU_API_VERSION ]]; then
