@@ -30,7 +30,7 @@ get_webhook() {
 }
 
 case "$1" in
-  slack:set)
+  redeploy:set)
     SLACK_ROOT=$(get_slack_root "$2")
     WEBHOOK=$(get_webhook "$2" "$3")
     [[ -z $WEBHOOK ]] && echo "Please specify at least a webhook URL" && exit 1
@@ -38,21 +38,21 @@ case "$1" in
     echo "$WEBHOOK" > "$SLACK_ROOT/SLACK_URL"
     ;;
 
-  slack:clear)
+  redeploy:clear)
     SLACK_ROOT=$(get_slack_root "$2")
     rm "$SLACK_ROOT/SLACK_URL"
     ;;
 
-  slack:get)
+  redeploy:get)
     SLACK_ROOT=$(get_slack_root "$2")
     cat "$SLACK_ROOT/SLACK_URL"
     ;;
 
   help)
     HELP=$(cat<<EOF
-    slack:set [app] <webhook_url>, Set Slack WebHook URL
-    slack:clear [app], Clears Slack WebHook URL
-    slack:get [app], Display Slack WebHook URL
+    redeploy:set [app] <webhook_url>, Set Slack WebHook URL
+    redeploy:clear [app], Clears Slack WebHook URL
+    redeploy:get [app], Display Slack WebHook URL
 EOF
 )
     if [[ -n $DOKKU_API_VERSION ]]; then
