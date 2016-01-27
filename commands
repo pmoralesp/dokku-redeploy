@@ -26,11 +26,13 @@ case "$1" in
     [[ -z $APP_REDEPLOY ]] && echo "Please specify an <app> to redeploy" && exit 1
     [[ -z $(is_an_app "$APP_REDEPLOY") ]] && echo "<app_redeploy> has to be a valid APP" && exit 1
     echo "$APP_REDEPLOY" > "$SLACK_ROOT/REDEPLOY"
+    dokku docker-options:add "$2" build,run,deploy "-v /home/datactil/.ssh/id_rsa.pub:/root/.ssh/id_rsa.pub"
     ;;
 
   redeploy:clear)
     SLACK_ROOT=$(get_slack_root "$2")
     rm "$SLACK_ROOT/REDEPLOY"
+    dokku docker-options:remove "$2" build,run,deploy "-v /home/datactil/.ssh/id_rsa.pub:/root/.ssh/id_rsa.pub"
     ;;
 
   redeploy:get)
