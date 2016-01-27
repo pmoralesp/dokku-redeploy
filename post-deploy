@@ -5,18 +5,8 @@ APP="$1"
 IMAGE="$2"
 HOSTNAME=$(hostname -f)
 
-if [[ -f "$DOKKU_ROOT/$APP/SLACK_URL" || -f "$DOKKU_ROOT/SLACK_URL" ]]; then
-  echo "-----> Notifying Slack ..."
+if [[ -f "$DOKKU_ROOT/$APP/REDEPLOY" ]]; then
+  REDEPLOY=$(cat "$DOKKU_ROOT/$APP/REDEPLOY" 2> /dev/null || /dev/null)
   URL=$(dokku url $APP)
-  SLACK_URL=$(cat "$DOKKU_ROOT/$APP/SLACK_URL" 2> /dev/null || cat "$DOKKU_ROOT/SLACK_URL" 2> /dev/null)
-  SLACK_JSON="{ \
-    \"attachments\": [{ \
-      \"text\": \"Deployed $APP to $HOSTNAME via $URL\", \
-      \"fallback\": \"Deployed $APP to $HOSTNAME via $URL\", \
-      \"color\": \"good\", \
-      \"mrkdwn_in\": [\"text\"] \
-    }] \
-  }"
-  SLACK_RESULT=$(curl -s -d "payload=$SLACK_JSON" "${SLACK_URL}" -w "%{http_code}")
-  echo "       ${SLACK_RESULT}"
+  echo "-----> Re-deploying $REDEPLOY ..."
 fi
