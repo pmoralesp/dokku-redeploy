@@ -8,6 +8,7 @@ fi
 source "$PLUGIN_BASE_PATH/common/functions"
 
 is_an_app() {
+  echo "$1"
   verify_app_name "$1"
 }
 
